@@ -11,13 +11,6 @@
 |
 */
 
-// Main Routes
-Route::get('/', 'HomeController@index');
-
-Route::get('/{year}', 'HomeController@categories');
-
-Route::get('/{year}/{category}', 'HomeController@subjects');
-
 // Other Routes
 Route::get('/teemo', function()
 {
@@ -33,3 +26,10 @@ Route::get('/test/view', function()
 {
 	return View::make('test.view');
 });
+
+// Main Routes
+Route::get('/', 'HomeController@index');
+
+Route::get('/{year}', 'HomeController@categories');
+
+Route::get('/{year}/{category}', 'HomeController@subjects');

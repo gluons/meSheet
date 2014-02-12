@@ -20,7 +20,7 @@ if($isLoggedIn) {
 	$groups = $facebook->api('/me/groups')['data'];
 	$isEligible = false;
 	foreach ($groups as $group) {
-		if($group['id'] == "162895923753285") {
+		if(in_array("162895923753285", $group)) {
 			$isEligible = true;
 			break;
 		}
@@ -37,7 +37,7 @@ if($isLoggedIn) {
 		<script src="{{ asset('js/jquery-2.0.3.min.js') }}"></script>
 		<script src="{{ asset('js/jquery.history.js') }}"></script>
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
-		<script src="//connect.facebook.net/th-TH/all.js"></script>
+		<script src="//connect.facebook.net/th_TH/all.js"></script>
 		<script>
 			window.fbAsyncInit = function() {
 				FB.init({

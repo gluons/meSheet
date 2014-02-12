@@ -20,7 +20,7 @@ if($isLoggedIn) {
 	$groups = $facebook->api('/me/groups')['data'];
 	$isEligible = false;
 	foreach ($groups as $group) {
-		if($group['id'] == "162895923753285") {
+		if(in_array("162895923753285", $group)) {
 			$isEligible = true;
 			break;
 		}
@@ -37,7 +37,7 @@ if($isLoggedIn) {
 		<script src="{{ asset('js/jquery-2.0.3.min.js') }}"></script>
 		<script src="{{ asset('js/jquery.history.js') }}"></script>
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
-		<script src="//connect.facebook.net/th-TH/all.js"></script>
+		<script src="//connect.facebook.net/th_TH/all.js"></script>
 		<script>
 			window.fbAsyncInit = function() {
 				FB.init({
@@ -199,22 +199,22 @@ if($isLoggedIn) {
 
 			<div id="subjects" class="row">
 				<div class="col-lg-6 col-sm-6">
-					<a href="#programming">
+					<a href="#A">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=A">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#network">
+					<a href="#B">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=B">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#multimedia">
+					<a href="#C">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=C">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#business">
+					<a href="#D">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=D">
 					</a>
 				</div>
