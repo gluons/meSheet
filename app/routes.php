@@ -14,11 +14,9 @@
 // Main Routes
 Route::get('/', 'HomeController@index');
 
-Route::get('/-body', 'HomeController@indexBody');
+Route::get('/{year}', 'HomeController@categories');
 
-Route::get('/categories', 'HomeController@categories');
-
-Route::get('/categories-body', 'HomeController@categoriesBody');
+Route::get('/{year}/{category}', 'HomeController@subjects');
 
 // Other Routes
 Route::get('/teemo', function()

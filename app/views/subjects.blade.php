@@ -37,8 +37,8 @@ if($isLoggedIn) {
 		<script src="{{ asset('js/jquery-2.0.3.min.js') }}"></script>
 		<script src="{{ asset('js/jquery.history.js') }}"></script>
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+		<script src="//connect.facebook.net/th-TH/all.js"></script>
 		<script>
-			$("<script></script" + ">").attr("src", "//connect.facebook.net/th-TH/all.js").insertAfter("script:last");
 			window.fbAsyncInit = function() {
 				FB.init({
 					appId: "{{ $facebook->getAppId() }}",
@@ -88,9 +88,30 @@ if($isLoggedIn) {
 					});
 				});
 				$("#userMenu").hide();
+				$("#subjects a[href^=\"#\"]").click(function(e) {
+					e.preventDefault();
+				});
+				$("#subjects img").mouseover(function() {
+					$(this).removeClass("img-circle");
+					$(this).addClass("img-rounded");
+				});
+				$("#subjects img").mouseout(function() {
+					$(this).removeClass("img-rounded");
+					$(this).addClass("img-circle");
+				});
 			});
 		</script>
 		<style type="text/css">
+			body {
+				padding-top: 70px;
+			}
+			#subjects img {
+				transition: all 0.5s ease 0s;
+			}
+			#subjects > div {
+				margin-top: 5pt;
+				margin-bottom: 5pt;
+			}
 			.greyOut {
 				background-color: #555555;
 				background-repeat: no-repeat;
@@ -105,9 +126,8 @@ if($isLoggedIn) {
 			}
 		</style>
 		<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-@yield('head')
-    </head>
-    <body>
+	</head>
+	<body>
 		<div id="fb-root"></div>
 		<div class="greyOut"></div>
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -146,7 +166,7 @@ if($isLoggedIn) {
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
-		
+
 		<div class="modal fade" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true" id="notificationModal" style="padding-top: 150px;">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -166,10 +186,39 @@ if($isLoggedIn) {
 
 		<div class="container">
 			<ol class="breadcrumb" style="margin-bottom: 0;">
-@yield('breadcrumb')
+				<li>{{ link_to('/', 'Home') }}</li>
+				<li>{{ link_to('/' . $year, ucwords($year)) }}</li>
+				<li class="active">{{ ucwords($category) }}</li>
 			</ol>
 
-@yield('content')
+			<div class="row">
+				<div class="col-lg-12">
+					<h2 class="page-header">Choose your subject</h2>
+				</div>
+			</div>
+
+			<div id="subjects" class="row">
+				<div class="col-lg-6 col-sm-6">
+					<a href="#programming">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=A">
+					</a>
+				</div>
+				<div class="col-lg-6 col-sm-6">
+					<a href="#network">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=B">
+					</a>
+				</div>
+				<div class="col-lg-6 col-sm-6">
+					<a href="#multimedia">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=C">
+					</a>
+				</div>
+				<div class="col-lg-6 col-sm-6">
+					<a href="#business">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=D">
+					</a>
+				</div>
+			</div>
 
 			<hr>
 
@@ -180,7 +229,6 @@ if($isLoggedIn) {
 					</div>
 				</div>
 			</footer>
-
 		</div>
-    </body>
+	</body>
 </html>

@@ -7,22 +7,20 @@
  */
 class HomeController extends BaseController {
 
-	protected $layout = 'layouts.master';
-
 	public function index() {
 		return View::make('index');
 	}
 
-	public function indexBody() {
-		return View::make('body.index');
+	public function categories($year) {
+		return View::make('categories', array(
+			'year' => $year
+		));
 	}
 
-	public function categories() {
-		return View::make('categories');
+	public function subjects($year, $category) {
+		return View::make('subjects', array(
+			'year' => $year,
+			'category' => $category
+		));
 	}
-
-	public function categoriesBody() {
-		return View::make('body.categories');
-	}
-
 }
