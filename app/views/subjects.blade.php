@@ -1,23 +1,23 @@
 <?php
 $config = array(
-	'appId' => Config::get('facebook.id'),
-	'secret' => Config::get('facebook.secret'),
-	'allowSignedRequest' => false
+	"appId" => Config::get("facebook.id"),
+	"secret" => Config::get("facebook.secret"),
+	"allowSignedRequest" => false
 );
 $facebook = new Facebook($config);
 $loginUrl = $facebook->getLoginUrl(array(
-	'scope' => 'email,user_groups',
-	'display' => 'page'
+	"scope" => "email,user_groups",
+	"display" => "page"
 ));
 $isLoggedIn = false;
 try {
-	$me = $facebook->api('/me');
+	$me = $facebook->api("/me");
 	$isLoggedIn = true;
 } catch (FacebookApiException $e) {
 	$isLoggedIn = false;
 }
 if($isLoggedIn) {
-	$groups = $facebook->api('/me/groups')['data'];
+	$groups = $facebook->api("/me/groups")["data"];
 	$isEligible = false;
 	foreach ($groups as $group) {
 		if(in_array("162895923753285", $group)) {
@@ -34,6 +34,7 @@ if($isLoggedIn) {
         <meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>meSheet - The IT KMITL document organizer for sharing</title>
+		<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 		<script src="{{ asset('js/jquery-2.0.3.min.js') }}"></script>
 		<script src="{{ asset('js/jquery.history.js') }}"></script>
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
@@ -125,7 +126,6 @@ if($isLoggedIn) {
 				z-index: 1040;
 			}
 		</style>
-		<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 	</head>
 	<body>
 		<div id="fb-root"></div>
@@ -139,7 +139,7 @@ if($isLoggedIn) {
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">meSheet</a>
+					<a class="navbar-brand" href="{{ url('/') }}">meSheet</a>
 				</div>
 				<div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
 					<ul class="nav navbar-nav navbar-right" id="userMenu">

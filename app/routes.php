@@ -11,25 +11,29 @@
 |
 */
 
-// Other Routes
-Route::get('/teemo', function()
+// Static Routes
+Route::get("/newuser", "HomeController@newUser");
+
+Route::get("/forbidden", "HomeController@forbidden");
+
+Route::get("/teemo", function()
 {
-	return View::make('teemo');
+	return View::make("teemo");
 });
 
-Route::get('/test', function()
+Route::get("/test", function()
 {
-	return View::make('test.index');
+	return View::make("test.index");
 });
 
-Route::get('/test/view', function()
+Route::get("/test/view", function()
 {
-	return View::make('test.view');
+	return View::make("test.view");
 });
 
 // Main Routes
-Route::get('/', 'HomeController@index');
+Route::get("/", "HomeController@index");
 
-Route::get('/{year}', 'HomeController@categories');
+Route::get("/{year}", "HomeController@categories");
 
-Route::get('/{year}/{category}', 'HomeController@subjects');
+Route::get("/{year}/{category}", "HomeController@subjects");
