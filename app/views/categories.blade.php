@@ -27,7 +27,15 @@
 							break;
 						case "not_authorized":
 						default:
-							$("#loginButton").wrap($("<a></a>").attr("href", "{{ $loginUrl }}"));
+							$("#loginButton").css({
+								cursor: "pointer"
+							}).click(function() {
+								FB.login(function(response) {
+									window.location.href = "{{ url('/newuser') }}"
+								}, {
+									scope: "email,user_groups"
+								});
+							});
 							$("#loginModal").modal({
 								backdrop: "static",
 								keyboard: false,
@@ -43,7 +51,7 @@
 				});
 				$("#logoutButton").click(function() {
 					FB.logout(function() {
-						window.location.reload();
+						window.location.href = "{{ url('/logout') }}";
 					});
 				});
 				$("#userMenu").hide();

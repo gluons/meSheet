@@ -35,21 +35,9 @@ class FacebookHelper {
 		return $this->_facebook;
 	}
 
-	public function isLoggedIn() {
-		$isLoggedIn = false;
-		try {
-			$me = $this->_facebook->api("/me");
-			$isLoggedIn = true;
-		} catch (FacebookApiException $e) {
-			$isLoggedIn = false;
-		}
-		return $isLoggedIn;
-	}
-
 	public function isEligible() {
-		$isLoggedIn = $this->isLoggedIn();
-		$isEligible = false;
-		if ($isLoggedIn) {
+		try {
+			$isEligible = false;
 			$groups = $this->_facebook->api("/me/groups")['data'];
 			foreach ($groups as $group) {
 				if ($group['id'] == "162895923753285") {
@@ -57,7 +45,9 @@ class FacebookHelper {
 					break;
 				}
 			}
+			return $isEligible;
+		} catch(FacebookApiException $e) {
+			return false;
 		}
-		return $isLoggedIn && $isEligible;
 	}
 }

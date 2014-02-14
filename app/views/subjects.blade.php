@@ -1,33 +1,3 @@
-<?php
-$config = array(
-	"appId" => Config::get("facebook.id"),
-	"secret" => Config::get("facebook.secret"),
-	"allowSignedRequest" => false
-);
-$facebook = new Facebook($config);
-$loginUrl = $facebook->getLoginUrl(array(
-	"scope" => "email,user_groups",
-	"display" => "page"
-));
-$isLoggedIn = false;
-try {
-	$me = $facebook->api("/me");
-	$isLoggedIn = true;
-} catch (FacebookApiException $e) {
-	$isLoggedIn = false;
-}
-if($isLoggedIn) {
-	$groups = $facebook->api("/me/groups")["data"];
-	$isEligible = false;
-	foreach ($groups as $group) {
-		if(in_array("162895923753285", $group)) {
-			$isEligible = true;
-			break;
-		}
-	}
-}
-?>
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -54,22 +24,18 @@ if($isLoggedIn) {
 								$("#name").text(response.name);
 								$("#userMenu").fadeIn();
 							});
-@if ($isLoggedIn)
-@unless ($isEligible)
-							$("#notificationModal").modal({
-								show: true
-							}).on("hidden.bs.modal", function() {
-								FB.logout(function() {
-									window.location.reload();
-								});
-							});
-@endunless
-@endif
-
 							break;
 						case "not_authorized":
 						default:
-							$("#loginButton").wrap($("<a></a>").attr("href", "{{ $loginUrl }}"));
+							$("#loginButton").css({
+								cursor: "pointer"
+							}).click(function() {
+								FB.login(function(response) {
+									window.location.href = "{{ url('/newuser') }}"
+								}, {
+									scope: "email,user_groups"
+								});
+							});
 							$("#loginModal").modal({
 								backdrop: "static",
 								keyboard: false,
@@ -85,7 +51,7 @@ if($isLoggedIn) {
 				});
 				$("#logoutButton").click(function() {
 					FB.logout(function() {
-						window.location.reload();
+						window.location.href = "{{ url('/logout') }}";
 					});
 				});
 				$("#userMenu").hide();
@@ -162,23 +128,6 @@ if($isLoggedIn) {
 					</div>
 					<div class="modal-body">
 						<p><img src="{{ asset("img/login.png") }}" class="img-responsive" id="loginButton" style="margin: 0 auto;"></p>
-					</div>
-				</div><!-- /.modal-content -->
-			</div><!-- /.modal-dialog -->
-		</div><!-- /.modal -->
-
-		<div class="modal fade" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true" id="notificationModal" style="padding-top: 150px;">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h4 class="modal-title">Notification</h4>
-					</div>
-					<div class="modal-body">
-						<p>You are not eligible.</p>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->

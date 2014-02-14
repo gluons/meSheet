@@ -13,27 +13,39 @@ class HomeController extends BaseController {
 	public function __construct() {
 		$this->_facebookHelper = FacebookHelper::getInstance();
 		$this->_facebook = $this->_facebookHelper->getFacebook();
-		$this->_loginUrl = $this->_facebook->getLoginUrl(array(
-			"scope" => "email,user_groups",
-			"display" => "page",
-			"redirect_uri" => url("/newuser")
-		));
+	}
+	
+	public function logout() {
+		Session::flush();
+		$this->_facebook->destroySession();
+		return Redirect::to(URL::previous());
 	}
 
 	public function newUser() {
-		if($this->_facebookHelper->isLoggedIn()) {
-			$me = $this->_facebook->api("/me");
-			if($this->_facebookHelper->isEligible()) {
-				if(User::where("id", "=", $me["id"])->count() == 0) {
-					$user = new User();
-					$user->id = $me["id"];
-					$user->save();
+		try {
+			$data = $this->_facebook->api(array(
+				"method" => "fql.query",
+				"query" => "SELECT uid FROM user WHERE uid == me()"
+			));
+			if(count($data) == 1) {
+				$userId = $data[0]["uid"];
+				Session::put("uid", $userId);
+				if($this->_facebookHelper->isEligible()) {
+					if(User::where("id", "=", $userId)->count() == 0) {
+						$user = new User();
+						$user->id = $userId;
+						$user->save();
+					}
+					return Redirect::to(URL::previous());
+				} else {
+					return Redirect::to("/forbidden");
 				}
-				return Redirect::to(URL::previous());
 			} else {
-				return Redirect::to("/forbidden");
+				Session::flush();
+				return Redirect::to(URL::previous());
 			}
-		} else {
+		} catch(FacebookApiException $e) {
+			Session::flush();
 			return Redirect::to(URL::previous());
 		}
 	}
@@ -43,42 +55,39 @@ class HomeController extends BaseController {
 	}
 
 	public function index() {
-		if($this->_facebookHelper->isLoggedIn()) {
-			$me = $this->_facebook->api("/me");
-			if(User::where("id", "=", $me["id"])->count() == 0) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser");
 			}
 		}
 		return View::make("index", array(
-			"facebook" => $this->_facebook,
-			"loginUrl" => $this->_loginUrl
+			"facebook" => $this->_facebook
 		));
 	}
 
 	public function categories($year) {
-		if($this->_facebookHelper->isLoggedIn()) {
-			$me = $this->_facebook->api("/me");
-			if(User::where("id", "=", $me["id"])->count() == 0) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser");
 			}
 		}
 		return View::make("categories", array(
 			"facebook" => $this->_facebook,
-			"loginUrl" => $this->_loginUrl,
 			"year" => $year
 		));
 	}
 
 	public function subjects($year, $category) {
-		if($this->_facebookHelper->isLoggedIn()) {
-			$me = $this->_facebook->api("/me");
-			if(User::where("id", "=", $me["id"])->count() == 0) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser");
 			}
 		}
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
-			"loginUrl" => $this->_loginUrl,
 			"year" => $year,
 			"category" => $category
 		));

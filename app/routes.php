@@ -12,6 +12,8 @@
 */
 
 // Static Routes
+Route::get("/logout", "HomeController@logout");
+
 Route::get("/newuser", "HomeController@newUser");
 
 Route::get("/forbidden", "HomeController@forbidden");

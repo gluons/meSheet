@@ -7,7 +7,7 @@
 	<script>
 		$(document).ready(function() {
 			$("#teemo").click(function() {
-				window.location.href = document.referrer;
+				window.location.href = "{{ URL::previous() }}";
 			});
 			$('#teemo').css({
 				left: ($(window).width() - $('#teemo').outerWidth()) / 2,
