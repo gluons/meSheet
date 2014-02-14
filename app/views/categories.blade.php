@@ -5,8 +5,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>meSheet - The IT KMITL document organizer for sharing</title>
 		<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 		<script src="{{ asset('js/jquery-2.0.3.min.js') }}"></script>
-		<script src="{{ asset('js/jquery.history.js') }}"></script>
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
 		<script src="//connect.facebook.net/th_TH/all.js"></script>
 		<script>
@@ -55,16 +55,16 @@
 					});
 				});
 				$("#userMenu").hide();
-				$("#categories a[href^=\"#\"]").click(function(e) {
+				$("#subjects a[href^=\"#\"]").click(function(e) {
 					e.preventDefault();
-					var category = $(this).attr("href").replace("#", "");
-					window.location.href = "{{ url('/' . $year) }}/" + category;
+					var subject = $(this).attr("href").replace("#", "");
+					window.location.href = "{{ url('/' . $year . '/' . $category) }}/" + subject;
 				});
-				$("#categories img").mouseover(function() {
+				$("#subjects img").mouseover(function() {
 					$(this).removeClass("img-circle");
 					$(this).addClass("img-rounded");
 				});
-				$("#categories img").mouseout(function() {
+				$("#subjects img").mouseout(function() {
 					$(this).removeClass("img-rounded");
 					$(this).addClass("img-circle");
 				});
@@ -74,30 +74,37 @@
 			body {
 				padding-top: 70px;
 			}
-			#categories img {
+			#subjects img {
 				transition: all 0.5s ease 0s;
 			}
-			#categories > div {
+			#subjects > div {
 				margin-top: 5pt;
 				margin-bottom: 5pt;
 			}
 			.greyOut {
-				background-color: #555555;
-				background-repeat: no-repeat;
-				background-position: center;
-				opacity: 0.5;
-				height: 100%;
-				width: 100%;
 				position: fixed;
 				top: 0px;
 				left: 0px;
+				height: 100%;
+				width: 100%;
+				background-color: #555555;
+				background-repeat: no-repeat;
+				background-position: center;
+				text-align: center;
+				opacity: 0.5;
 				z-index: 1040;
+			}
+			.greyOut i {
+				position: absolute;
+				top: 40%;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="fb-root"></div>
-		<div class="greyOut"></div>
+		<div class="greyOut">
+			<i class="fa fa-spinner fa-spin fa-5x" style="color: #1995DC;"></i>
+		</div>
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 			<div class="container">
 				<div class="navbar-header">
@@ -138,39 +145,35 @@
 		<div class="container">
 			<ol class="breadcrumb" style="margin-bottom: 0;">
 				<li>{{ link_to('/', 'Home') }}</li>
-				<li class="active">{{ ucwords($year) }}</li>
+				<li>{{ link_to('/' . $year, ucwords($year)) }}</li>
+				<li class="active">{{ ucwords($category) }}</li>
 			</ol>
 
 			<div class="row">
 				<div class="col-lg-12">
-					<h2 class="page-header">Choose your subject category</h2>
+					<h2 class="page-header">Choose your subject</h2>
 				</div>
 			</div>
 
-			<div id="categories" class="row">
+			<div id="subjects" class="row">
 				<div class="col-lg-6 col-sm-6">
-					<a href="#programming">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Programming">
+					<a href="#A">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=A">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#network">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Network">
+					<a href="#B">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=B">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#multimedia">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Multimedia">
+					<a href="#C">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=C">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#business">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Business">
-					</a>
-				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#other">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Other">
+					<a href="#D">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=D">
 					</a>
 				</div>
 			</div>
@@ -184,7 +187,6 @@
 					</div>
 				</div>
 			</footer>
-
 		</div>
-    </body>
+	</body>
 </html>

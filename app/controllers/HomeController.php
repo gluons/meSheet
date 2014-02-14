@@ -17,11 +17,13 @@ class HomeController extends BaseController {
 	
 	public function logout() {
 		Session::flush();
+		$logoutUrl = "https://www.facebook.com/logout.php?next=" . URL::previous() . "&access_token=" . $this->_facebook->getAccessToken();
 		$this->_facebook->destroySession();
-		return Redirect::to(URL::previous());
+		return Redirect::to($logoutUrl);
 	}
 
 	public function newUser() {
+		$from = Session::get("from");
 		try {
 			$data = $this->_facebook->api(array(
 				"method" => "fql.query",
@@ -36,17 +38,17 @@ class HomeController extends BaseController {
 						$user->id = $userId;
 						$user->save();
 					}
-					return Redirect::to(URL::previous());
+					return Redirect::to($from);
 				} else {
 					return Redirect::to("/forbidden");
 				}
 			} else {
 				Session::flush();
-				return Redirect::to(URL::previous());
+				return Redirect::to($from);
 			}
 		} catch(FacebookApiException $e) {
 			Session::flush();
-			return Redirect::to(URL::previous());
+			return Redirect::to($from);
 		}
 	}
 
@@ -58,7 +60,7 @@ class HomeController extends BaseController {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
-				return Redirect::to("/newuser");
+				return Redirect::to("/newuser")->with("from", "/");
 			}
 		}
 		return View::make("index", array(
@@ -66,30 +68,45 @@ class HomeController extends BaseController {
 		));
 	}
 
-	public function categories($year) {
+	public function years($year) {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
-				return Redirect::to("/newuser");
+				return Redirect::to("/newuser")->with("from", "/" . $year);
 			}
 		}
-		return View::make("categories", array(
+		return View::make("years", array(
 			"facebook" => $this->_facebook,
 			"year" => $year
 		));
 	}
 
-	public function subjects($year, $category) {
+	public function categories($year, $category) {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
-				return Redirect::to("/newuser");
+				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category);
+			}
+		}
+		return View::make("categories", array(
+			"facebook" => $this->_facebook,
+			"year" => $year,
+			"category" => $category
+		));
+	}
+
+	public function subjects($year, $category, $subject) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
+				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subject);
 			}
 		}
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
 			"year" => $year,
-			"category" => $category
+			"category" => $category,
+			"subject" => $subject
 		));
 	}
 

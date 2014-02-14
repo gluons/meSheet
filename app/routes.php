@@ -36,6 +36,8 @@ Route::get("/test/view", function()
 // Main Routes
 Route::get("/", "HomeController@index");
 
-Route::get("/{year}", "HomeController@categories");
+Route::get("/{year}", "HomeController@years");
 
-Route::get("/{year}/{category}", "HomeController@subjects");
+Route::get("/{year}/{category}", "HomeController@categories");
+
+Route::get("/{year}/{category}/{subject}", "HomeController@subjects");

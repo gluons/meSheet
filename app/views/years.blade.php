@@ -55,16 +55,16 @@
 					});
 				});
 				$("#userMenu").hide();
-				$("#college-years a[href^=\"#\"]").click(function(e) {
+				$("#categories a[href^=\"#\"]").click(function(e) {
 					e.preventDefault();
-					var year = $(this).attr("href").replace("#", "");
-					window.location.href = "{{ url('/') }}/" + year;
+					var category = $(this).attr("href").replace("#", "");
+					window.location.href = "{{ url('/' . $year) }}/" + category;
 				});
-				$("#college-years img").mouseover(function() {
+				$("#categories img").mouseover(function() {
 					$(this).removeClass("img-circle");
 					$(this).addClass("img-rounded");
 				});
-				$("#college-years img").mouseout(function() {
+				$("#categories img").mouseout(function() {
 					$(this).removeClass("img-rounded");
 					$(this).addClass("img-circle");
 				});
@@ -74,10 +74,10 @@
 			body {
 				padding-top: 70px;
 			}
-			#college-years img {
+			#categories img {
 				transition: all 0.5s ease 0s;
 			}
-			#college-years > div {
+			#categories > div {
 				margin-top: 5pt;
 				margin-bottom: 5pt;
 			}
@@ -114,7 +114,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">meSheet</a>
+					<a class="navbar-brand" href="{{ url('/') }}">meSheet</a>
 				</div>
 				<div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
 					<ul class="nav navbar-nav navbar-right" id="userMenu">
@@ -144,34 +144,40 @@
 
 		<div class="container">
 			<ol class="breadcrumb" style="margin-bottom: 0;">
-				<li class="active">Home</li>
+				<li>{{ link_to('/', 'Home') }}</li>
+				<li class="active">{{ ucwords($year) }}</li>
 			</ol>
 
 			<div class="row">
 				<div class="col-lg-12">
-					<h2 class="page-header">Choose your college year</h2>
+					<h2 class="page-header">Choose your subject category</h2>
 				</div>
 			</div>
 
-			<div id="college-years" class="row">
+			<div id="categories" class="row">
 				<div class="col-lg-6 col-sm-6">
-					<a href="#freshman">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Freshman">
+					<a href="#programming">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Programming">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#sophomore">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Sophomore">
+					<a href="#network">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Network">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#junior">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Junior">
+					<a href="#multimedia">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Multimedia">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#senior">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Senior">
+					<a href="#business">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Business">
+					</a>
+				</div>
+				<div class="col-lg-6 col-sm-6">
+					<a href="#other">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Other">
 					</a>
 				</div>
 			</div>
@@ -185,6 +191,7 @@
 					</div>
 				</div>
 			</footer>
+
 		</div>
-	</body>
+    </body>
 </html>
