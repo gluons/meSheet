@@ -23,6 +23,7 @@
 							FB.api("/me", function(response) {
 								$("#name").text(response.name);
 								$("#userMenu").fadeIn();
+								$.get("{{ url('/login') }}");
 							});
 							break;
 						case "not_authorized":
@@ -97,6 +98,7 @@
 			.greyOut i {
 				position: absolute;
 				top: 40%;
+				left: 50%;
 			}
 		</style>
 	</head>
@@ -155,28 +157,21 @@
 				</div>
 			</div>
 
+@if ($subjects->count() > 0)
 			<div id="subjects" class="row">
+@foreach ($subjects as $subject)
 				<div class="col-lg-6 col-sm-6">
-					<a href="#A">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=A">
+					<a href="{{ url('/' . $year . '/' . $category . '/' . $subject->id) }}">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text={{ $subject->name }}">
 					</a>
 				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#B">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=B">
-					</a>
-				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#C">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=C">
-					</a>
-				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#D">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=D">
-					</a>
-				</div>
+@endforeach
 			</div>
+@else
+			<div>
+				<img class="img-rounded img-responsive center-block" src="http://placehold.it/500x150.png/dddddd/ff7777&text=No Subject">
+			</div>
+@endif
 
 			<hr>
 

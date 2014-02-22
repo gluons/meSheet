@@ -12,11 +12,15 @@
 */
 
 // Static Routes
+Route::get("/login", "HomeController@login");
+
 Route::get("/logout", "HomeController@logout");
 
 Route::get("/newuser", "HomeController@newUser");
 
 Route::get("/forbidden", "HomeController@forbidden");
+
+Route::get("/download/{year}/{category}/{subject}/{topic}", "FileController@download");
 
 Route::get("/teemo", function()
 {

@@ -23,6 +23,7 @@
 							FB.api("/me", function(response) {
 								$("#name").text(response.name);
 								$("#userMenu").fadeIn();
+								$.get("{{ url('/login') }}");
 							});
 							break;
 						case "not_authorized":
@@ -55,11 +56,6 @@
 					});
 				});
 				$("#userMenu").hide();
-				$("#categories a[href^=\"#\"]").click(function(e) {
-					e.preventDefault();
-					var category = $(this).attr("href").replace("#", "");
-					window.location.href = "{{ url('/' . $year) }}/" + category;
-				});
 				$("#categories img").mouseover(function() {
 					$(this).removeClass("img-circle");
 					$(this).addClass("img-rounded");
@@ -97,6 +93,7 @@
 			.greyOut i {
 				position: absolute;
 				top: 40%;
+				left: 50%;
 			}
 		</style>
 	</head>
@@ -154,33 +151,21 @@
 				</div>
 			</div>
 
+@if ($categories->count() > 0)
 			<div id="categories" class="row">
+@foreach ($categories as $category)
 				<div class="col-lg-6 col-sm-6">
-					<a href="#programming">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Programming">
+					<a href="{{ url('/' . $year . '/' . strtolower($category->name)) }}">
+						<img class="img-circle img-responsive center-block" src="http://placehold.it/300.png&text={{ $category->name }}">
 					</a>
 				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#network">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Network">
-					</a>
-				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#multimedia">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Multimedia">
-					</a>
-				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#business">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Business">
-					</a>
-				</div>
-				<div class="col-lg-6 col-sm-6">
-					<a href="#other">
-						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Other">
-					</a>
-				</div>
+@endforeach
 			</div>
+@else
+			<div>
+				<img class="img-rounded img-responsive center-block" src="http://placehold.it/500x150.png/dddddd/ff7777&text=No Category">
+			</div>
+@endif
 
 			<hr>
 

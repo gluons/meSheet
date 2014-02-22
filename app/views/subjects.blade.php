@@ -24,6 +24,7 @@
 							FB.api("/me", function(response) {
 								$("#name").text(response.name);
 								$("#userMenu").fadeIn();
+								$.get("{{ url('/login') }}");
 							});
 							break;
 						case "not_authorized":
@@ -59,12 +60,12 @@
 				$("a[data-toggle='tab']").on("show.bs.tab", function() {
 					$("#requestAccordion .collapse").each(function() {
 						if ($(this).hasClass("in")) {
-							$(this).collapse("toggle");
+							$(this).collapse("hide");
 						}
 					});
 					$("#fileAccordion .collapse").each(function() {
 						if ($(this).hasClass("in")) {
-							$(this).collapse("toggle");
+							$(this).collapse("hide");
 						}
 					});
 				});
@@ -90,6 +91,7 @@
 			.greyOut i {
 				position: absolute;
 				top: 40%;
+				left: 50%;
 			}
 			.listBox {
 				margin-top: 20px;
@@ -100,6 +102,13 @@
     </head>
     <body>
 		<div id="fb-root"></div>
+		<script>(function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0];
+		  if (d.getElementById(id)) return;
+		  js = d.createElement(s); js.id = id;
+		  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=716966921722728";
+		  fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));</script>
 		<div class="greyOut">
 			<i class="fa fa-spinner fa-spin fa-5x" style="color: #1995DC;"></i>
 		</div>
@@ -157,51 +166,56 @@
 				<div class="tab-pane fade in active" id="fileList">
 					<div class="listBox">
 						<div class="panel-group" id="fileAccordion">
+@if (count($fileList) > 0)
+@foreach ($fileList as $file)
 							<div class="panel panel-default">
 								<div class="panel-heading">
 									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#fileAccordion" href="#fileCollapse1">
-											Item 1
-											<span class="badge">12</span>
+										<a data-toggle="collapse" data-parent="#fileAccordion" href="#fileCollapse{{ $file->id }}">
+											{{ $file->title }}
+											<span class="badge">{{ $file->like_count }}</span>
 										</a>
 									</h4>
 								</div>
 								<div id="fileCollapse1" class="panel-collapse collapse">
 									<div class="panel-body">
-										Content 1
+										<div>
+											Description: {{ $file->description }}
+										</div>
+										<div>
+											Size: {{ $file->filesize }}
+										</div>
+										<div>
+											Upload time: {{ $file->created_at }}
+										</div>
+										<div>
+											Author: {{ $file->author_id }}
+										</div>
+										<div>
+											<div class="fb-like" data-href="{{ $file->url }}" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
+										</div>
+										<div>
+											<a href="{{ $file->filepath }}" class="btn btn-success btn-sm" role="button">
+												<span class="glyphicon glyphicon-download-alt"></span>
+												Download
+											</a>
+										</div>
 									</div>
 								</div>
 							</div>
-							<div class="panel panel-default">
+@endforeach
+@else
+							<div class="panel panel-info">
 								<div class="panel-heading">
 									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#fileAccordion" href="#fileCollapse2">
-											Item 2
-											<span class="badge">23</span>
-										</a>
+										No file
 									</h4>
 								</div>
-								<div id="fileCollapse2" class="panel-collapse collapse">
 									<div class="panel-body">
-										Content 2
+										No file
 									</div>
-								</div>
 							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#fileAccordion" href="#fileCollapse3">
-											Item 3
-											<span class="badge">38</span>
-										</a>
-									</h4>
-								</div>
-								<div id="fileCollapse3" class="panel-collapse collapse">
-									<div class="panel-body">
-										Content 3
-									</div>
-								</div>
-							</div>
+@endif
 						</div>
 						
 						<button type="button" class="btn btn-primary">
@@ -213,48 +227,35 @@
 				<div class="tab-pane fade" id="requestList">
 					<div class="listBox">
 						<div class="panel-group" id="requestAccordion">
+@if ($requestList->count() > 0)
+@foreach ($requestList as $request)
 							<div class="panel panel-default">
 								<div class="panel-heading">
 									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#requestAccordion" href="#requestCollapse1">
-											Item 1
+										<a data-toggle="collapse" data-parent="#requestAccordion" href="#requestCollapse{{ $request->id }}">
+											{{ $request->title }}
 										</a>
 									</h4>
 								</div>
 								<div id="requestCollapse1" class="panel-collapse collapse">
 									<div class="panel-body">
-										Content 1
+										{{ $request->message }}
 									</div>
 								</div>
 							</div>
-							<div class="panel panel-default">
+@endforeach
+@else
+							<div class="panel panel-info">
 								<div class="panel-heading">
 									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#requestAccordion" href="#requestCollapse2">
-											Item 2
-										</a>
+										No request
 									</h4>
 								</div>
-								<div id="requestCollapse2" class="panel-collapse collapse">
 									<div class="panel-body">
-										Content 2
+										No request
 									</div>
-								</div>
 							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#requestAccordion" href="#requestCollapse3">
-											Item 3
-										</a>
-									</h4>
-								</div>
-								<div id="requestCollapse3" class="panel-collapse collapse">
-									<div class="panel-body">
-										Content 3
-									</div>
-								</div>
-							</div>
+@endif
 						</div>
 						
 						<button type="button" class="btn btn-primary">

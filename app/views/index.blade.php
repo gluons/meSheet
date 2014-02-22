@@ -23,6 +23,7 @@
 							FB.api("/me", function(response) {
 								$("#name").text(response.name);
 								$("#userMenu").fadeIn();
+								$.get("{{ url('/login') }}");
 							});
 							break;
 						case "not_authorized":
@@ -55,11 +56,6 @@
 					});
 				});
 				$("#userMenu").hide();
-				$("#college-years a[href^=\"#\"]").click(function(e) {
-					e.preventDefault();
-					var year = $(this).attr("href").replace("#", "");
-					window.location.href = "{{ url('/') }}/" + year;
-				});
 				$("#college-years img").mouseover(function() {
 					$(this).removeClass("img-circle");
 					$(this).addClass("img-rounded");
@@ -97,6 +93,7 @@
 			.greyOut i {
 				position: absolute;
 				top: 40%;
+				left: 50%;
 			}
 		</style>
 	</head>
@@ -155,22 +152,22 @@
 
 			<div id="college-years" class="row">
 				<div class="col-lg-6 col-sm-6">
-					<a href="#freshman">
+					<a href="{{ url('/freshman') }}">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Freshman">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#sophomore">
+					<a href="{{ url('/sophomore') }}">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Sophomore">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#junior">
+					<a href="{{ url('/junior') }}">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Junior">
 					</a>
 				</div>
 				<div class="col-lg-6 col-sm-6">
-					<a href="#senior">
+					<a href="{{ url('/senior') }}">
 						<img class="img-circle img-responsive center-block" src="http://placehold.it/300&text=Senior">
 					</a>
 				</div>

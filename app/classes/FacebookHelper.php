@@ -35,6 +35,34 @@ class FacebookHelper {
 		return $this->_facebook;
 	}
 
+	public static function getLinkStat($url) {
+		try {
+			$query = <<<FQL
+SELECT url, normalized_url, total_count, like_count, comment_count, share_count, click_count FROM link_stat WHERE url="$url"
+FQL;
+			$call = "https://graph.facebook.com/fql?q=" . rawurlencode($query);
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $call);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$output = curl_exec($ch);
+			$output = json_decode($output);
+			$output = $output->data;
+			curl_close($ch);
+			return $output;
+		} catch(Exception $e) {
+			return null;
+		}
+	}
+	
+	public static function getLikeCount($url) {
+		$linkStat = FacebookHelper::getLinkStat($url);
+		if($linkStat != null) {
+			return $linkStat->like_count;
+		} else {
+			return 0;
+		}
+	}
+
 	public function isEligible() {
 		try {
 			$isEligible = false;
