@@ -11,6 +11,12 @@
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
 		<script src="//connect.facebook.net/th_TH/all.js"></script>
 		<script>
+@if (isset($topicId))
+			var topicId = {{ $topicId }};
+@endif
+@if (isset($requestId))
+			var requestId = {{ $requestId }};
+@endif
 			window.fbAsyncInit = function() {
 				FB.init({
 					appId: "{{ $facebook->getAppId() }}",
@@ -53,21 +59,124 @@
 				});
 				$("#logoutButton").click(function() {
 					FB.logout(function() {
-						window.location.href = "{{ url('/logout') }}";
+						window.location.href = "{{ url('/logout') }}?next=" + window.location.href;
 					});
 				});
 				$("#userMenu").hide();
+				$("#newFileForm").hide();
+				$("#newRequestForm").hide();
 				$("a[data-toggle='tab']").on("show.bs.tab", function() {
-					$("#requestAccordion .collapse").each(function() {
-						if ($(this).hasClass("in")) {
-							$(this).collapse("hide");
-						}
-					});
 					$("#fileAccordion .collapse").each(function() {
 						if ($(this).hasClass("in")) {
 							$(this).collapse("hide");
 						}
 					});
+					$("#requestAccordion .collapse").each(function() {
+						if ($(this).hasClass("in")) {
+							$(this).collapse("hide");
+						}
+					});
+				});
+				$("#listTab a[href='#fileList']").on("shown.bs.tab", function() {
+					History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}");
+				});
+				$("#listTab a[href='#requestList']").on("shown.bs.tab", function() {
+					History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request");
+				});
+				// New file
+				$("#newFileButton").click(function() {
+					History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}");
+					$("#fileAccordion .collapse").each(function() {
+						if ($(this).hasClass("in")) {
+							$(this).collapse("hide");
+						}
+					});
+					$("#fileListContainer").fadeOut(function() {
+						$("#newFileForm").fadeIn();
+					});
+				});
+				$("#newFileSubmitButton").click(function() {
+					$(".greyOut").fadeIn();
+				});
+				$("#newFileCancelButton").click(function() {
+					$("#newFileForm").fadeOut(function() {
+						$("#newFileForm")[0].reset();
+						$("#fileListContainer").fadeIn();
+					});
+				});
+				// New request
+				$("#newRequestButton").click(function() {
+					History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request");
+					$("#requestAccordion .collapse").each(function() {
+						if ($(this).hasClass("in")) {
+							$(this).collapse("hide");
+						}
+					});
+					$("#requestListContainer").fadeOut(function() {
+						$("#newRequestForm").fadeIn();
+					});
+				});
+				$("#newRequestSubmitButton").click(function() {
+					$(".greyOut").fadeIn();
+				});
+				$("#newRequestCancelButton").click(function() {
+					$("#newRequestForm").fadeOut(function() {
+						$("#newRequestForm")[0].reset();
+						$("#requestListContainer").fadeIn();
+					});
+				});
+				$.get("{{ asset('template/topics.html') }}", function(response) {
+					$("#noFile").hide();
+					$response = $(response);
+					for(var i = 1; i <= 3; i++) {
+						$item = $response.clone();
+						$item.find(".panel-title a").attr("href", "#fileCollapse" + i).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/topic/" + i);
+						$item.find(".panel-title a > span:first").text("Title " + i);
+						$item.find(".panel-title span.badge").text({{ FacebookHelper::getTotalCount('https://www.facebook.com/') }});
+						$item.find(".panel-collapse").attr("id", "fileCollapse" + i);
+						$item.find(".panel-collapse #fileDescription").text("Description " + i);
+						$item.find(".panel-collapse #fileSize").text("Size " + i);
+						$item.find(".panel-collapse #fileUploadTime").text("Upload time " + i);
+						$item.find(".panel-collapse #fileAuthor").attr("href", "https://www.facebook.com/").text("Author " + i);
+						$item.find(".panel-collapse #fileDownload").attr("href", "{{ url('/download/' . $year . '/' . $category . '/' . $subjectId) }}/" + i);
+						$item.find(".collapse").on("shown.bs.collapse", function() {
+							History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
+						});
+						$item.find(".collapse").on("hide.bs.collapse", function() {
+							History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}");
+						});
+@if (isset($topicId))
+						if(i == topicId) {
+							$item.find(".collapse").addClass("in");
+						}
+@endif
+						$("#fileAccordion").append($item);
+					}
+				}, "html");
+@if (isset($requestId) || (isset($isRequest) && $isRequest))
+				$("#listTab a[href='#requestList']").tab("show");
+@endif
+				$.get("{{ asset('template/requests.html') }}", function(response) {
+					$("#noRequest").hide();
+					$response = $(response);
+					for(var i = 1; i <= 3; i++) {
+						$item = $response.clone();
+						$item.find(".panel-title a").attr("href", "#requestCollapse" + i).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request/" + i).text("Title " + i);
+						$item.find(".panel-collapse").attr("id", "requestCollapse" + i);
+						$item.find(".panel-body").text("Message " + i);
+						$item.find(".collapse").on("shown.bs.collapse", function() {
+							History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
+						});
+						$item.find(".collapse").on("hide.bs.collapse", function() {
+							History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request");
+						});
+@if (isset($requestId))
+						if(i == requestId) {
+							$item.find(".collapse").addClass("in");
+						}
+@endif
+						$("#requestAccordion").append($item);
+					}
 				});
 			});
 		</script>
@@ -97,18 +206,12 @@
 				margin-top: 20px;
 				margin-left: 3%;
 				margin-right: 3%;
+				margin-bottom: 50px;
 			}
 		</style>
     </head>
     <body>
 		<div id="fb-root"></div>
-		<script>(function(d, s, id) {
-		  var js, fjs = d.getElementsByTagName(s)[0];
-		  if (d.getElementById(id)) return;
-		  js = d.createElement(s); js.id = id;
-		  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=716966921722728";
-		  fjs.parentNode.insertBefore(js, fjs);
-		}(document, 'script', 'facebook-jssdk'));</script>
 		<div class="greyOut">
 			<i class="fa fa-spinner fa-spin fa-5x" style="color: #1995DC;"></i>
 		</div>
@@ -165,106 +268,102 @@
 			<div class="tab-content">
 				<div class="tab-pane fade in active" id="fileList">
 					<div class="listBox">
-						<div class="panel-group" id="fileAccordion">
-@if (count($fileList) > 0)
-@foreach ($fileList as $file)
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#fileAccordion" href="#fileCollapse{{ $file->id }}">
-											{{ $file->title }}
-											<span class="badge">{{ $file->like_count }}</span>
-										</a>
-									</h4>
-								</div>
-								<div id="fileCollapse1" class="panel-collapse collapse">
-									<div class="panel-body">
-										<div>
-											Description: {{ $file->description }}
-										</div>
-										<div>
-											Size: {{ $file->filesize }}
-										</div>
-										<div>
-											Upload time: {{ $file->created_at }}
-										</div>
-										<div>
-											Author: {{ $file->author_id }}
-										</div>
-										<div>
-											<div class="fb-like" data-href="{{ $file->url }}" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
-										</div>
-										<div>
-											<a href="{{ $file->filepath }}" class="btn btn-success btn-sm" role="button">
-												<span class="glyphicon glyphicon-download-alt"></span>
-												Download
-											</a>
-										</div>
+						<div id="fileListContainer">
+							<div class="panel-group" id="fileAccordion">
+								<div id="noFile" class="panel panel-info">
+									<div class="panel-heading">
+										<h4 class="panel-title">
+											No file
+										</h4>
 									</div>
-								</div>
-							</div>
-@endforeach
-@else
-							<div class="panel panel-info">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										No file
-									</h4>
-								</div>
 									<div class="panel-body">
 										No file
 									</div>
+								</div>
 							</div>
-@endif
+
+							<button type="button" id="newFileButton" class="btn btn-primary">
+								<i class="fa fa-upload"></i>
+								Upload File
+							</button>
 						</div>
-						
-						<button type="button" class="btn btn-primary">
-							<i class="fa fa-upload"></i>
-							Upload File
-						</button>
+
+						<form role="form" id="newFileForm">
+							<div class="form-group">
+								<label for="newFileTitle">Title</label>
+								<input type="text" class="form-control" id="newFileTitle" placeholder="Enter title">
+							</div>
+							<div class="form-group">
+								<label for="newFileDescription">Description</label>
+								<textarea class="form-control" rows="3" id="newFileDescription" placeholder="Enter description" style="resize: vertical;"></textarea>
+							</div>
+							<div class="form-group">
+								<label for="newFileFile">File</label>
+								<input type="file" id="newFileFile">
+							</div>
+							<button type="button" id="newFileSubmitButton" class="btn btn-primary">
+								<i class="fa fa-upload"></i>
+								Upload New File
+							</button>
+							<button type="button" id="newFileCancelButton" class="btn btn-default">
+								<i class="fa fa-ban"></i>
+								Cancel
+							</button>
+						</form>
 					</div>
 				</div>
 				<div class="tab-pane fade" id="requestList">
 					<div class="listBox">
-						<div class="panel-group" id="requestAccordion">
-@if ($requestList->count() > 0)
-@foreach ($requestList as $request)
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#requestAccordion" href="#requestCollapse{{ $request->id }}">
-											{{ $request->title }}
-										</a>
-									</h4>
-								</div>
-								<div id="requestCollapse1" class="panel-collapse collapse">
-									<div class="panel-body">
-										{{ $request->message }}
+						<div id="requestListContainer">
+							<div class="panel-group" id="requestAccordion">
+								<div id="noRequest" class="panel panel-info">
+									<div class="panel-heading">
+										<h4 class="panel-title">
+											No request
+										</h4>
 									</div>
-								</div>
-							</div>
-@endforeach
-@else
-							<div class="panel panel-info">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										No request
-									</h4>
-								</div>
 									<div class="panel-body">
 										No request
 									</div>
+								</div>
 							</div>
-@endif
+
+							<button type="button" id="newRequestButton" class="btn btn-primary">
+								<span class="glyphicon glyphicon-file"></span>
+								Request File
+							</button>
 						</div>
-						
-						<button type="button" class="btn btn-primary">
-							<span class="glyphicon glyphicon-file"></span>
-							Request File
-						</button>
+
+						<form role="form" id="newRequestForm">
+							<div class="form-group">
+								<label for="newRequestTitle">Title</label>
+								<input type="text" class="form-control" id="newRequestTitle" placeholder="Enter title">
+							</div>
+							<div class="form-group">
+								<label for="newRequestDescription">Description</label>
+								<textarea class="form-control" rows="3" id="newRequestDescription" placeholder="Enter description" style="resize: vertical;"></textarea>
+							</div>
+							<button type="button" id="newRequestSubmitButton" class="btn btn-primary">
+								<span class="glyphicon glyphicon-file"></span>
+								New Request
+							</button>
+							<button type="button" id="newRequestCancelButton" class="btn btn-default">
+								<i class="fa fa-ban"></i>
+								Cancel
+							</button>
+						</form>
 					</div>
 				</div>
 			</div>
 		</div>
+		<script>
+			window.___gcfg = {lang: 'th'};
+
+			(function() {
+			  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+			  po.src = 'https://apis.google.com/js/platform.js';
+			  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+			})();
+		</script>
     </body>
 </html>

@@ -20,6 +20,8 @@ Route::get("/newuser", "HomeController@newUser");
 
 Route::get("/forbidden", "HomeController@forbidden");
 
+Route::get("/topics/{subject}", "FileController@topics");
+
 Route::get("/download/{year}/{category}/{subject}/{topic}", "FileController@download");
 
 Route::get("/teemo", function()
@@ -45,3 +47,9 @@ Route::get("/{year}", "HomeController@years");
 Route::get("/{year}/{category}", "HomeController@categories");
 
 Route::get("/{year}/{category}/{subject}", "HomeController@subjects");
+
+Route::get("/{year}/{category}/{subject}/request", "HomeController@subjects2");
+
+Route::get("/{year}/{category}/{subject}/topic/{topic}", "HomeController@topics");
+
+Route::get("/{year}/{category}/{subject}/request/{request}", "HomeController@requests");

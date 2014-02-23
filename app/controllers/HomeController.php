@@ -33,7 +33,12 @@ class HomeController extends BaseController {
 
 	public function logout() {
 		Session::flush();
-		$logoutUrl = "https://www.facebook.com/logout.php?next=" . URL::previous() . "&access_token=" . $this->_facebook->getAccessToken();
+		if(Input::has("next")) {
+			$next = Input::get("next");
+		} else {
+			$next = URL::previous();
+		}
+		$logoutUrl = "https://www.facebook.com/logout.php?next=" . $next . "&access_token=" . $this->_facebook->getAccessToken();
 		$this->_facebook->destroySession();
 		return Redirect::to($logoutUrl);
 	}
@@ -122,7 +127,7 @@ class HomeController extends BaseController {
 				break;
 		}
 		$categoryId = Category::where("name", "=", $category)->pluck("id");
-		$subjects = Subject::where("category_id", "=", $categoryId)->where("year", "=", $yearInt)->get();
+		$subjects = Subject::where("year", "=", $yearInt)->where("category_id", "=", $categoryId)->get();
 		return View::make("categories", array(
 			"facebook" => $this->_facebook,
 			"year" => $year,
@@ -132,45 +137,73 @@ class HomeController extends BaseController {
 	}
 
 	public function subjects($year, $category, $subjectId) {
-		$uploadDir = Config::get("mesheet.upload_dir");
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
-				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subject);
+				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId);
 			}
 		}
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
-		$topicList = Topic::where("subject_id", "=", $subjectId)->get();
-		$fileList = array();
-		$requestList = RequestL::where("subject_id", "=", $subjectId)->orderBy("created_at", "desc");
-		foreach($topicList as $topic) {
-			$file = new stdClass();
-			$file->id = $topic->id;
-			$file->title = $topic->title;
-			$file->description = $topic->description;
-			$file->filename = $topic->filename;
-			$file->filesize = @filesize($uploadDir . "/" . strtolower($year) . "/" . strtolower($category) . "/" . $subjectId . "/" . $topic->filename);
-			$sz = 'BKMGTP';
-			$factor = floor((strlen($file->filesize) - 1) / 3);
-			$file->filesize = sprintf("%.2f", $file->filesize / pow(1024, $factor)) . " " . @$sz[$factor];
-			$file->filetype = $topic->filetype;
-			$file->created_at = $topic->created_at;
-			$file->updated_at = $topic->updated_at;
-			$file->author_id = $topic->author_id;
-			$file->url = url("/" . strtolower($year) . "/" . strtolower($category) . "/" . $subjectId . "/" . $file->id);
-			$file->like_count = FacebookHelper::getLikeCount($file->url);
-			$file->filepath = url("/download/" . strtolower($year) . "/" . strtolower($category) . "/" . $subjectId . "/" . $file->id);
-			array_push($fileList, $file);
+		return View::make("subjects", array(
+			"facebook" => $this->_facebook,
+			"year" => $year,
+			"category" => $category,
+			"subjectId" => $subjectId,
+			"subject" => $subject
+		));
+	}
+	
+	public function subjects2($year, $category, $subjectId) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
+				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId);
+			}
 		}
+		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
 			"year" => $year,
 			"category" => $category,
 			"subjectId" => $subjectId,
 			"subject" => $subject,
-			"uploadDir" => $uploadDir,
-			"fileList" => $fileList,
-			"requestList" => $requestList,
+			"isRequest" => true
+		));
+	}
+
+	public function topics($year, $category, $subjectId, $topicId) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
+				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId . "/topic/" . $topicId);
+			}
+		}
+		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
+		return View::make("subjects", array(
+			"facebook" => $this->_facebook,
+			"year" => $year,
+			"category" => $category,
+			"subjectId" => $subjectId,
+			"subject" => $subject,
+			"topicId" => $topicId
+		));
+	}
+
+	public function requests($year, $category, $subjectId, $requestId) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
+				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId . "/request/" . $requestId);
+			}
+		}
+		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
+		return View::make("subjects", array(
+			"facebook" => $this->_facebook,
+			"year" => $year,
+			"category" => $category,
+			"subjectId" => $subjectId,
+			"subject" => $subject,
+			"requestId" => $requestId
 		));
 	}
 

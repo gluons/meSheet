@@ -52,7 +52,7 @@
 				});
 				$("#logoutButton").click(function() {
 					FB.logout(function() {
-						window.location.href = "{{ url('/logout') }}";
+						window.location.href = "{{ url('/logout') }}?next=" + window.location.href;
 					});
 				});
 				$("#userMenu").hide();

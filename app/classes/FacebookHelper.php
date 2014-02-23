@@ -41,19 +41,24 @@ class FacebookHelper {
 SELECT url, normalized_url, total_count, like_count, comment_count, share_count, click_count FROM link_stat WHERE url="$url"
 FQL;
 			$call = "https://graph.facebook.com/fql?q=" . rawurlencode($query);
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $call);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			$output = curl_exec($ch);
+			$output = file_get_contents($call);
 			$output = json_decode($output);
-			$output = $output->data;
-			curl_close($ch);
+			$output = $output->data[0];
 			return $output;
 		} catch(Exception $e) {
 			return null;
 		}
 	}
-	
+
+	public static function getTotalCount($url) {
+		$linkStat = FacebookHelper::getLinkStat($url);
+		if($linkStat != null) {
+			return $linkStat->total_count;
+		} else {
+			return 0;
+		}
+	}
+
 	public static function getLikeCount($url) {
 		$linkStat = FacebookHelper::getLinkStat($url);
 		if($linkStat != null) {
