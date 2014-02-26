@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of Subject
+ * Model for manipulate subject table.
  *
  * @author Illuminator
  */

@@ -9,6 +9,7 @@
 		<script src="{{ asset('js/jquery-2.0.3.min.js') }}"></script>
 		<script src="{{ asset('js/jquery.history.js') }}"></script>
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+		<script src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
 		<script src="//connect.facebook.net/th_TH/all.js"></script>
 		<script>
 @if (isset($topicId))
@@ -31,6 +32,17 @@
 								$("#name").text(response.name);
 								$("#userMenu").fadeIn();
 								$.get("{{ url('/login') }}");
+@if ($errorMsg != null)
+
+								$("#errorMsg").effect({
+									effect: "pulsate",
+									times: 3,
+									duration: 1500,
+									complete: function() {
+										$(this).delay(1500).fadeOut();
+									}
+								});
+@endif
 							});
 							break;
 						case "not_authorized":
@@ -53,6 +65,106 @@
 					}
 				});
 			};
+			// Get topic
+			var getTopic = function() {
+				$fileAccordion = $("#fileAccordion")
+				$fileAccordion.fadeOut(function() {
+					$fileAccordion.children("div:gt(0)").remove();
+					$("#noFile").hide();
+					$("#fileLoading").fadeIn(function() {
+						$.getJSON("{{ url('/topics/' . $subjectId) }}", function(response) {
+							$.get("{{ asset('template/topic.html') }}", function(topic) {
+								var $topic = $(topic);
+								for(var i = 0; i < response.length; i++) {
+									$item = $topic.clone();
+									$item.find(".panel-title a").attr("href", "#fileCollapse" + response[i].id).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/topic/" + response[i].id);
+									$item.find(".panel-title a > span:first").text(response[i].title);
+									$.getJSON("https://graph.facebook.com/fql?q=" + "SELECT total_count FROM link_stat WHERE url= '" + $item.find(".panel-title a").attr("data-url") + "'", function(fbResponse) {
+										if(fbResponse.data.length != 0) {
+											$item.find(".panel-title span.badge").text(fbResponse.data[0].total_count);
+										} else {
+											$item.find(".panel-title span.badge").text("0");
+										}
+									});
+									$item.find(".panel-collapse").attr("id", "fileCollapse" + response[i].id);
+									$item.find(".panel-collapse #fileDescription").text(response[i].description);
+									$item.find(".panel-collapse #fileSize").text(response[i].filesize);
+									$item.find(".panel-collapse #fileUploadTime").text(response[i].created_at.date);
+									$item.find(".panel-collapse #fileAuthor").attr("href", response[i].author_url).text(response[i].author);
+									$item.find(".panel-collapse #filePopularity > iframe").prop("src", "//www.facebook.com/plugins/like.php?href=" + $item.find(".panel-title a").attr("data-url") + "&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=false&amp;share=false&amp;height=21&amp;appId=716966921722728");
+									$item.find(".panel-collapse #filePopularity > div").attr("data-href", $item.find(".panel-title a").attr("data-url"));
+									$item.find(".panel-collapse #fileDownload").attr("href", "{{ url('/download/' . $year . '/' . $category . '/' . $subjectId) }}/" + response[i].id);
+									$item.find(".collapse").on("shown.bs.collapse", function() {
+										History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
+									});
+									$item.find(".collapse").on("hide.bs.collapse", function() {
+										History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}");
+									});
+@if (isset($topicId))
+									if(response[i].id == topicId) {
+										$item.find(".collapse").addClass("in");
+									}
+@endif
+									$fileAccordion.append($item);
+								}
+								$("#fileLoading").fadeOut(function () {
+									if(response.length > 0) {
+										$fileAccordion.fadeIn();
+									} else {
+										$("#noFile").show(function() {
+											$fileAccordion.slideDown();
+										})
+									}
+								});
+							}, "html");
+						});
+					});
+				});
+			};
+			// Get request
+			var getRequest = function() {
+				$requestAccordion = $("#requestAccordion");
+				$requestAccordion.fadeOut(function() {
+					$requestAccordion.children("div:gt(0)").remove();
+					$("#noRequest").hide();
+					$("#requestLoading").fadeIn(function() {
+						$.getJSON("{{ url('/requests/' . $subjectId) }}", function(response) {
+							$.get("{{ asset('template/request.html') }}", function(request) {
+								var $request = $(request);
+								for(var i = 0; i < response.length; i++) {
+									$item = $request.clone();
+									$item.find(".panel-title a").attr("href", "#requestCollapse" + response[i].id).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request/" + response[i].id).text(response[i].title);
+									$item.find(".panel-collapse").attr("id", "requestCollapse" + response[i].id);
+									$item.find(".panel-collapse #requestAuthor").attr("href", response[i].author_url).text(response[i].author);
+									$item.find(".panel-collapse #requestMessage").text(response[i].message);
+									$item.find(".collapse").on("shown.bs.collapse", function() {
+										History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
+									});
+									$item.find(".collapse").on("hide.bs.collapse", function() {
+										History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request");
+									});
+@if (isset($requestId))
+									if(response[i].id == requestId) {
+										$item.find(".collapse").addClass("in");
+									}
+@endif
+									$requestAccordion.append($item);
+								}
+								$("#requestLoading").fadeOut(function () {
+									if(response.length > 0) {
+										$requestAccordion.fadeIn();
+									} else {
+										$("#noRequest").show(function() {
+											$requestAccordion.slideDown();
+										})
+									}
+								});
+							}, "html");
+						});
+					});
+				});
+			};
+
 			$(document).ready(function() {
 				$("a[href=\"#\"]").click(function(e) {
 					e.preventDefault();
@@ -76,12 +188,28 @@
 							$(this).collapse("hide");
 						}
 					});
+					$("#newFileForm").hide(function() {
+						$("#newFileForm")[0].reset();
+						$("#fileListContainer").show();
+					});
+					$("#newRequestForm").hide(function() {
+						$("#newRequestForm")[0].reset();
+						$("#requestListContainer").show();
+					});
 				});
 				$("#listTab a[href='#fileList']").on("shown.bs.tab", function() {
 					History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}");
 				});
+				$("#listTab a[href='#fileList']").click(function() {
+					getTopic();
+				})
 				$("#listTab a[href='#requestList']").on("shown.bs.tab", function() {
-					History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request");
+					if(!/.+\/request\/\d$/.test(window.location.href)) {
+						History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request");
+					}
+				});
+				$("#listTab a[href='#requestList']").click(function() {
+					getRequest();
 				});
 				// New file
 				$("#newFileButton").click(function() {
@@ -95,7 +223,7 @@
 						$("#newFileForm").fadeIn();
 					});
 				});
-				$("#newFileSubmitButton").click(function() {
+				$("#newFileForm").submit(function() {
 					$(".greyOut").fadeIn();
 				});
 				$("#newFileCancelButton").click(function() {
@@ -116,8 +244,40 @@
 						$("#newRequestForm").fadeIn();
 					});
 				});
-				$("#newRequestSubmitButton").click(function() {
-					$(".greyOut").fadeIn();
+				$("#newRequestForm").submit(function(e) {
+					e.preventDefault();
+					$(".greyOut").fadeIn(function() {
+						$.post("{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request", $("#newRequestForm").serializeArray(), function(response) {
+							if(response.success == true) {
+								$(".greyOut").fadeOut(function() {
+									$("#newRequestForm").fadeOut(function() {
+										$("#newRequestForm")[0].reset();
+										$("#requestListContainer").fadeIn(function() {
+											getRequest();
+										});
+									});
+								});
+							} else {
+								$(".greyOut").fadeOut(function() {
+									$("#errorMsg span").text("Fail to add new request.");
+									$("#errorMsg").effect({
+										effect: "pulsate",
+										times: 3,
+										duration: 1500,
+										complete: function() {
+											$(this).delay(1500).fadeOut();
+										}
+									});
+									$("#newRequestForm").fadeOut(function() {
+										$("#newRequestForm")[0].reset();
+										$("#requestListContainer").fadeIn(function() {
+											getRequest();
+										});
+									});
+								})
+							}
+						}, "json");
+					});
 				});
 				$("#newRequestCancelButton").click(function() {
 					$("#newRequestForm").fadeOut(function() {
@@ -125,59 +285,13 @@
 						$("#requestListContainer").fadeIn();
 					});
 				});
-				$.get("{{ asset('template/topics.html') }}", function(response) {
-					$("#noFile").hide();
-					$response = $(response);
-					for(var i = 1; i <= 3; i++) {
-						$item = $response.clone();
-						$item.find(".panel-title a").attr("href", "#fileCollapse" + i).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/topic/" + i);
-						$item.find(".panel-title a > span:first").text("Title " + i);
-						$item.find(".panel-title span.badge").text({{ FacebookHelper::getTotalCount('https://www.facebook.com/') }});
-						$item.find(".panel-collapse").attr("id", "fileCollapse" + i);
-						$item.find(".panel-collapse #fileDescription").text("Description " + i);
-						$item.find(".panel-collapse #fileSize").text("Size " + i);
-						$item.find(".panel-collapse #fileUploadTime").text("Upload time " + i);
-						$item.find(".panel-collapse #fileAuthor").attr("href", "https://www.facebook.com/").text("Author " + i);
-						$item.find(".panel-collapse #fileDownload").attr("href", "{{ url('/download/' . $year . '/' . $category . '/' . $subjectId) }}/" + i);
-						$item.find(".collapse").on("shown.bs.collapse", function() {
-							History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
-						});
-						$item.find(".collapse").on("hide.bs.collapse", function() {
-							History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}");
-						});
-@if (isset($topicId))
-						if(i == topicId) {
-							$item.find(".collapse").addClass("in");
-						}
-@endif
-						$("#fileAccordion").append($item);
-					}
-				}, "html");
+
+				getTopic();
+				getRequest();
+
 @if (isset($requestId) || (isset($isRequest) && $isRequest))
 				$("#listTab a[href='#requestList']").tab("show");
 @endif
-				$.get("{{ asset('template/requests.html') }}", function(response) {
-					$("#noRequest").hide();
-					$response = $(response);
-					for(var i = 1; i <= 3; i++) {
-						$item = $response.clone();
-						$item.find(".panel-title a").attr("href", "#requestCollapse" + i).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request/" + i).text("Title " + i);
-						$item.find(".panel-collapse").attr("id", "requestCollapse" + i);
-						$item.find(".panel-body").text("Message " + i);
-						$item.find(".collapse").on("shown.bs.collapse", function() {
-							History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
-						});
-						$item.find(".collapse").on("hide.bs.collapse", function() {
-							History.pushState(null, document.title, "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request");
-						});
-@if (isset($requestId))
-						if(i == requestId) {
-							$item.find(".collapse").addClass("in");
-						}
-@endif
-						$("#requestAccordion").append($item);
-					}
-				});
 			});
 		</script>
 		<style type="text/css">
@@ -208,12 +322,38 @@
 				margin-right: 3%;
 				margin-bottom: 50px;
 			}
+			#errorMsg {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 300px;
+				margin-left: -150px;
+				margin-top: -100px;
+				padding: 20px;
+				text-align: center;
+				background-color: rgba(255, 100, 100, 0.5);
+				border-radius: 5px;
+				z-index: 10;
+			}
+			#errorMsg span {
+				color: black;
+				font-size: 18px;
+				word-wrap: break-word;
+			}
 		</style>
     </head>
     <body>
 		<div id="fb-root"></div>
 		<div class="greyOut">
 			<i class="fa fa-spinner fa-spin fa-5x" style="color: #1995DC;"></i>
+		</div>
+		<div id="errorMsg" style="display: none;">
+			<span style="color: red;">
+@if ($errorMsg != null)
+				{{ $errorMsg }}
+
+@endif
+			</span>
 		</div>
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 			<div class="container">
@@ -269,6 +409,10 @@
 				<div class="tab-pane fade in active" id="fileList">
 					<div class="listBox">
 						<div id="fileListContainer">
+							<div id="fileLoading" style="margin-bottom: 20px;">
+								<i class="fa fa-refresh fa-spin"></i>
+								Loading...
+							</div>
 							<div class="panel-group" id="fileAccordion">
 								<div id="noFile" class="panel panel-info">
 									<div class="panel-heading">
@@ -288,20 +432,20 @@
 							</button>
 						</div>
 
-						<form role="form" id="newFileForm">
+						<form role="form" name="newFileForm" id="newFileForm" action="{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/topic" method="post" enctype="multipart/form-data">
 							<div class="form-group">
 								<label for="newFileTitle">Title</label>
-								<input type="text" class="form-control" id="newFileTitle" placeholder="Enter title">
+								<input type="text" class="form-control" name="newFileTitle" id="newFileTitle" placeholder="Enter title" required="yes">
 							</div>
 							<div class="form-group">
 								<label for="newFileDescription">Description</label>
-								<textarea class="form-control" rows="3" id="newFileDescription" placeholder="Enter description" style="resize: vertical;"></textarea>
+								<textarea class="form-control" rows="3" name="newFileDescription" id="newFileDescription" placeholder="Enter description" required="yes" style="resize: vertical;"></textarea>
 							</div>
 							<div class="form-group">
 								<label for="newFileFile">File</label>
-								<input type="file" id="newFileFile">
+								<input type="file" name="newFileFile" id="newFileFile" required="yes">
 							</div>
-							<button type="button" id="newFileSubmitButton" class="btn btn-primary">
+							<button type="submit" id="newFileSubmitButton" class="btn btn-primary">
 								<i class="fa fa-upload"></i>
 								Upload New File
 							</button>
@@ -315,6 +459,10 @@
 				<div class="tab-pane fade" id="requestList">
 					<div class="listBox">
 						<div id="requestListContainer">
+							<div id="requestLoading" style="margin-bottom: 20px;">
+								<i class="fa fa-refresh fa-spin"></i>
+								Loading...
+							</div>
 							<div class="panel-group" id="requestAccordion">
 								<div id="noRequest" class="panel panel-info">
 									<div class="panel-heading">
@@ -334,16 +482,16 @@
 							</button>
 						</div>
 
-						<form role="form" id="newRequestForm">
+						<form role="form" name="newRequestForm" id="newRequestForm">
 							<div class="form-group">
 								<label for="newRequestTitle">Title</label>
-								<input type="text" class="form-control" id="newRequestTitle" placeholder="Enter title">
+								<input type="text" class="form-control" name="newRequestTitle" id="newRequestTitle" placeholder="Enter title" required="yes">
 							</div>
 							<div class="form-group">
-								<label for="newRequestDescription">Description</label>
-								<textarea class="form-control" rows="3" id="newRequestDescription" placeholder="Enter description" style="resize: vertical;"></textarea>
+								<label for="newRequestDescription">Message</label>
+								<textarea class="form-control" rows="3" name="newRequestMessage" id="newRequestMessage" placeholder="Enter message" required="yes" style="resize: vertical;"></textarea>
 							</div>
-							<button type="button" id="newRequestSubmitButton" class="btn btn-primary">
+							<button type="submit" id="newRequestSubmitButton" class="btn btn-primary">
 								<span class="glyphicon glyphicon-file"></span>
 								New Request
 							</button>

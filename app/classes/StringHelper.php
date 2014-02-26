@@ -1,12 +1,17 @@
 <?php
 
 /**
- * Description of StringHelper
+ * String helper
  *
  * @author Illuminator
  */
 class StringHelper {
-	// Prettify text in HTML
+	/**
+	 * Prettify text in HTML
+	 * 
+	 * @param string $text
+	 * @return string
+	 */
 	public static function prettifyText($text) {
 		$result = "";
 		$text = str_split($text);

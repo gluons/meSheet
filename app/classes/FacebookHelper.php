@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of FacebookHelper
+ * Facebook helper
  *
  * @author Illuminator
  */
@@ -10,6 +10,9 @@ class FacebookHelper {
 	private $_config = array();
 	private $_facebook = null;
 	
+	/**
+	 * Initialize Facebook configuration.
+	 */
 	private function __construct() {
 		$this->_config = array(
 			"appId" => Config::get("facebook.id"),
@@ -20,6 +23,11 @@ class FacebookHelper {
 		$this->_facebook = new Facebook($this->_config);
 	}
 
+	/**
+	 * Get a instance of Facebook helper.
+	 * 
+	 * @return FacebookHelper
+	 */
 	public static function getInstance() {
 		if(FacebookHelper::$instance == null) {
 			FacebookHelper::$instance = new FacebookHelper();
@@ -27,14 +35,30 @@ class FacebookHelper {
 		return FacebookHelper::$instance;
 	}
 	
+	/**
+	 * Get Facebook configuration.
+	 * 
+	 * @return array
+	 */
 	public function getConfig() {
 		return $this->_config;
 	}
 
+	/**
+	 * Get Facebook instance.
+	 * 
+	 * @return Facebook
+	 */
 	public function getFacebook() {
 		return $this->_facebook;
 	}
 
+	/**
+	 * Get Facebook stat of url.
+	 * 
+	 * @param String $url
+	 * @return object
+	 */
 	public static function getLinkStat($url) {
 		try {
 			$query = <<<FQL
@@ -50,6 +74,12 @@ FQL;
 		}
 	}
 
+	/**
+	 * Get total count of Facebook stat for a url.
+	 * 
+	 * @param string $url
+	 * @return int
+	 */
 	public static function getTotalCount($url) {
 		$linkStat = FacebookHelper::getLinkStat($url);
 		if($linkStat != null) {
@@ -59,6 +89,12 @@ FQL;
 		}
 	}
 
+	/**
+	 * Get like count of Facebook stat for a url.
+	 * 
+	 * @param string $url
+	 * @return int
+	 */
 	public static function getLikeCount($url) {
 		$linkStat = FacebookHelper::getLinkStat($url);
 		if($linkStat != null) {
@@ -68,6 +104,11 @@ FQL;
 		}
 	}
 
+	/**
+	 * Check user is in IT KMITL group or not.
+	 * 
+	 * @return boolean
+	 */
 	public function isEligible() {
 		try {
 			$isEligible = false;

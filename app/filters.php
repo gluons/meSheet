@@ -19,7 +19,20 @@ App::before(function($request)
 
 App::after(function($request, $response)
 {
-	//
+	// HTML Minification
+//	if(App::Environment() != 'local') {
+//		if($response instanceof Illuminate\Http\Response) {
+//			$output = $response->getOriginalContent();
+//			$filters = array(
+//				'/<!--([^\[|(<!)].*)/'	=> '', // Remove HTML Comments (breaks with HTML5 Boilerplate)
+//				'/(?<!\S)\/\/\s*[^\r\n]*/'	=> '', // Remove comments in the form /* */
+//				'/\s{2,}/'	=> '', // Shorten multiple white spaces
+//				'/(\r?\n)/'	=> '', // Collapse new lines
+//			);
+//			$output = preg_replace(array_keys($filters), array_values($filters), $output);
+//			$response->setContent($output);
+//		}
+//	}
 });
 
 /*

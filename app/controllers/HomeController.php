@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of HomeController
+ * Home controller
  *
  * @author Illuminator
  */
@@ -14,7 +14,10 @@ class HomeController extends BaseController {
 		$this->_facebookHelper = FacebookHelper::getInstance();
 		$this->_facebook = $this->_facebookHelper->getFacebook();
 	}
-	
+
+	/**
+	 * Controller for login.
+	 */
 	public function login() {
 		if(!Session::has("uid")) {
 			try {
@@ -31,6 +34,9 @@ class HomeController extends BaseController {
 		}
 	}
 
+	/**
+	 * Controller for logout.
+	 */
 	public function logout() {
 		Session::flush();
 		if(Input::has("next")) {
@@ -43,6 +49,9 @@ class HomeController extends BaseController {
 		return Redirect::to($logoutUrl);
 	}
 
+	/**
+	 * Controller for new user.
+	 */
 	public function newUser() {
 		$from = Session::get("from");
 		try {
@@ -73,10 +82,16 @@ class HomeController extends BaseController {
 		}
 	}
 
+	/**
+	 * Controller for forbinden page.
+	 */
 	public function forbidden() {
 		return View::make("forbidden");
 	}
 
+	/**
+	 * Controller for home page.
+	 */
 	public function index() {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
@@ -89,6 +104,11 @@ class HomeController extends BaseController {
 		));
 	}
 
+	/**
+	 * Controller for years page.
+	 * 
+	 * @param string $year
+	 */
 	public function years($year) {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
@@ -104,6 +124,12 @@ class HomeController extends BaseController {
 		));
 	}
 
+	/**
+	 * Controller for categories page.
+	 * 
+	 * @param string $year
+	 * @param string $category
+	 */
 	public function categories($year, $category) {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
@@ -136,6 +162,13 @@ class HomeController extends BaseController {
 		));
 	}
 
+	/**
+	 * Controller for subjects page that show file list.
+	 * 
+	 * @param string $year
+	 * @param string $category
+	 * @param string $subjectId
+	 */
 	public function subjects($year, $category, $subjectId) {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
@@ -143,16 +176,29 @@ class HomeController extends BaseController {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId);
 			}
 		}
+		$errorMsg = null;
+		if(Session::has("error_message")) {
+			$errorMsg = Session::get("error_message");
+			Session::forget("error_message");
+		}
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
 			"year" => $year,
 			"category" => $category,
 			"subjectId" => $subjectId,
-			"subject" => $subject
+			"subject" => $subject,
+			"errorMsg" => $errorMsg
 		));
 	}
-	
+
+	/**
+	 * Controller for subjects page that show request list.
+	 * 
+	 * @param string $year
+	 * @param string $category
+	 * @param string $subjectId
+	 */
 	public function subjects2($year, $category, $subjectId) {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
@@ -160,6 +206,11 @@ class HomeController extends BaseController {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId);
 			}
 		}
+		$errorMsg = null;
+		if(Session::has("error_message")) {
+			$errorMsg = Session::get("error_message");
+			Session::forget("error_message");
+		}
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
@@ -167,10 +218,19 @@ class HomeController extends BaseController {
 			"category" => $category,
 			"subjectId" => $subjectId,
 			"subject" => $subject,
-			"isRequest" => true
+			"isRequest" => true,
+			"errorMsg" => $errorMsg
 		));
 	}
 
+	/**
+	 * Controller for topic view page.
+	 * 
+	 * @param string $year
+	 * @param string $category
+	 * @param string $subjectId
+	 * @param string $topicId
+	 */
 	public function topics($year, $category, $subjectId, $topicId) {
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
@@ -178,23 +238,10 @@ class HomeController extends BaseController {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId . "/topic/" . $topicId);
 			}
 		}
-		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
-		return View::make("subjects", array(
-			"facebook" => $this->_facebook,
-			"year" => $year,
-			"category" => $category,
-			"subjectId" => $subjectId,
-			"subject" => $subject,
-			"topicId" => $topicId
-		));
-	}
-
-	public function requests($year, $category, $subjectId, $requestId) {
-		if(Session::has("uid")) {
-			$userId = Session::get("uid");
-			if(User::where("id", "=", $userId)->count() == 0) {
-				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId . "/request/" . $requestId);
-			}
+		$errorMsg = null;
+		if(Session::has("error_message")) {
+			$errorMsg = Session::get("error_message");
+			Session::forget("error_message");
 		}
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
@@ -203,7 +250,40 @@ class HomeController extends BaseController {
 			"category" => $category,
 			"subjectId" => $subjectId,
 			"subject" => $subject,
-			"requestId" => $requestId
+			"topicId" => $topicId,
+			"errorMsg" => $errorMsg
+		));
+	}
+
+	/**
+	 * Controller for request view page.
+	 * 
+	 * @param string $year
+	 * @param string $category
+	 * @param string $subjectId
+	 * @param string $requestId
+	 */
+	public function requests($year, $category, $subjectId, $requestId) {
+		if(Session::has("uid")) {
+			$userId = Session::get("uid");
+			if(User::where("id", "=", $userId)->count() == 0) {
+				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId . "/request/" . $requestId);
+			}
+		}
+		$errorMsg = null;
+		if(Session::has("error_message")) {
+			$errorMsg = Session::get("error_message");
+			Session::forget("error_message");
+		}
+		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
+		return View::make("subjects", array(
+			"facebook" => $this->_facebook,
+			"year" => $year,
+			"category" => $category,
+			"subjectId" => $subjectId,
+			"subject" => $subject,
+			"requestId" => $requestId,
+			"errorMsg" => $errorMsg
 		));
 	}
 

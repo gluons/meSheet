@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of RequestL
+ * Model for manipulate request table.
  *
  * @author Illuminator
  */

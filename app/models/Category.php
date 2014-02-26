@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of Category
+ * Model for manipulate category table.
  *
  * @author Illuminator
  */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of Topic
+ * Model for manipulate topic table.
  *
  * @author Illuminator
  */
