@@ -399,7 +399,7 @@
 						<h4 class="modal-title">Remove?</h4>
 					</div>
 					<div class="modal-body">
-						Do you want to remove <b></b> category?
+						Do you want to remove <b></b> subject?
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
