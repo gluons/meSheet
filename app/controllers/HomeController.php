@@ -8,7 +8,6 @@
 class HomeController extends BaseController {
 	private $_facebookHelper;
 	private $_facebook;
-	private $_loginUrl;
 
 	public function __construct() {
 		$this->_facebookHelper = FacebookHelper::getInstance();
@@ -93,14 +92,25 @@ class HomeController extends BaseController {
 	 * Controller for home page.
 	 */
 	public function index() {
+		$isRoot = false;
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser")->with("from", "/");
 			}
+			$role = User::where("id", "=", Session::get("uid"))->pluck("role");
+			switch($role) {
+				case "root":
+					$isRoot = true;
+					break;
+				default:
+					$isRoot = false;
+					break;
+			}
 		}
 		return View::make("index", array(
-			"facebook" => $this->_facebook
+			"facebook" => $this->_facebook,
+			"isRoot" => $isRoot
 		));
 	}
 
@@ -110,15 +120,26 @@ class HomeController extends BaseController {
 	 * @param string $year
 	 */
 	public function years($year) {
+		$isRoot = false;
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser")->with("from", "/" . $year);
 			}
+			$role = User::where("id", "=", Session::get("uid"))->pluck("role");
+			switch($role) {
+				case "root":
+					$isRoot = true;
+					break;
+				default:
+					$isRoot = false;
+					break;
+			}
 		}
 		$categories = Category::orderBy("name")->get();
 		return View::make("years", array(
 			"facebook" => $this->_facebook,
+			"isRoot" => $isRoot,
 			"year" => $year,
 			"categories" => $categories
 		));
@@ -131,10 +152,20 @@ class HomeController extends BaseController {
 	 * @param string $category
 	 */
 	public function categories($year, $category) {
+		$isRoot = false;
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category);
+			}
+			$role = User::where("id", "=", Session::get("uid"))->pluck("role");
+			switch($role) {
+				case "root":
+					$isRoot = true;
+					break;
+				default:
+					$isRoot = false;
+					break;
 			}
 		}
 		$yearInt = 0;
@@ -156,6 +187,7 @@ class HomeController extends BaseController {
 		$subjects = Subject::where("year", "=", $yearInt)->where("category_id", "=", $categoryId)->get();
 		return View::make("categories", array(
 			"facebook" => $this->_facebook,
+			"isRoot" => $isRoot,
 			"year" => $year,
 			"category" => $category,
 			"subjects" => $subjects
@@ -170,10 +202,20 @@ class HomeController extends BaseController {
 	 * @param string $subjectId
 	 */
 	public function subjects($year, $category, $subjectId) {
+		$isRoot = false;
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId);
+			}
+			$role = User::where("id", "=", Session::get("uid"))->pluck("role");
+			switch($role) {
+				case "root":
+					$isRoot = true;
+					break;
+				default:
+					$isRoot = false;
+					break;
 			}
 		}
 		$errorMsg = null;
@@ -184,6 +226,7 @@ class HomeController extends BaseController {
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
+			"isRoot" => $isRoot,
 			"year" => $year,
 			"category" => $category,
 			"subjectId" => $subjectId,
@@ -200,10 +243,20 @@ class HomeController extends BaseController {
 	 * @param string $subjectId
 	 */
 	public function subjects2($year, $category, $subjectId) {
+		$isRoot = false;
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId);
+			}
+			$role = User::where("id", "=", Session::get("uid"))->pluck("role");
+			switch($role) {
+				case "root":
+					$isRoot = true;
+					break;
+				default:
+					$isRoot = false;
+					break;
 			}
 		}
 		$errorMsg = null;
@@ -214,6 +267,7 @@ class HomeController extends BaseController {
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
+			"isRoot" => $isRoot,
 			"year" => $year,
 			"category" => $category,
 			"subjectId" => $subjectId,
@@ -232,10 +286,20 @@ class HomeController extends BaseController {
 	 * @param string $topicId
 	 */
 	public function topics($year, $category, $subjectId, $topicId) {
+		$isRoot = false;
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId . "/topic/" . $topicId);
+			}
+			$role = User::where("id", "=", Session::get("uid"))->pluck("role");
+			switch($role) {
+				case "root":
+					$isRoot = true;
+					break;
+				default:
+					$isRoot = false;
+					break;
 			}
 		}
 		$errorMsg = null;
@@ -246,6 +310,7 @@ class HomeController extends BaseController {
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
+			"isRoot" => $isRoot,
 			"year" => $year,
 			"category" => $category,
 			"subjectId" => $subjectId,
@@ -264,10 +329,20 @@ class HomeController extends BaseController {
 	 * @param string $requestId
 	 */
 	public function requests($year, $category, $subjectId, $requestId) {
+		$isRoot = false;
 		if(Session::has("uid")) {
 			$userId = Session::get("uid");
 			if(User::where("id", "=", $userId)->count() == 0) {
 				return Redirect::to("/newuser")->with("from", "/" . $year . "/" . $category . "/" . $subjectId . "/request/" . $requestId);
+			}
+			$role = User::where("id", "=", Session::get("uid"))->pluck("role");
+			switch($role) {
+				case "root":
+					$isRoot = true;
+					break;
+				default:
+					$isRoot = false;
+					break;
 			}
 		}
 		$errorMsg = null;
@@ -278,6 +353,7 @@ class HomeController extends BaseController {
 		$subject = Subject::where("id", "=", $subjectId)->pluck("name");
 		return View::make("subjects", array(
 			"facebook" => $this->_facebook,
+			"isRoot" => $isRoot,
 			"year" => $year,
 			"category" => $category,
 			"subjectId" => $subjectId,

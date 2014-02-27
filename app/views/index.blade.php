@@ -118,6 +118,10 @@
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span id="name"></span> <b class="caret"></b></a>
 							<ul class="dropdown-menu">
+@if ($isRoot)
+								<li><a href="{{ url('/adm/categories') }}">Manage categories</a></li>
+								<li><a href="{{ url('/adm/subjects') }}">Manage subjects</a></li>
+@endif
 								<li><a id="logoutButton" href="#">Logout</a></li>
 							</ul>
 						</li>

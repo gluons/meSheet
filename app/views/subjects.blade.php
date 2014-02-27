@@ -78,7 +78,7 @@
 								for(var i = 0; i < response.length; i++) {
 									$item = $topic.clone();
 									$item.find(".panel-title a").attr("href", "#fileCollapse" + response[i].id).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/topic/" + response[i].id);
-									$item.find(".panel-title a > span:first").text(response[i].title);
+									$item.find(".panel-title a > span:first").html(response[i].title);
 									$.getJSON("https://graph.facebook.com/fql?q=" + "SELECT total_count FROM link_stat WHERE url= '" + $item.find(".panel-title a").attr("data-url") + "'", function(fbResponse) {
 										if(fbResponse.data.length != 0) {
 											$item.find(".panel-title span.badge").text(fbResponse.data[0].total_count);
@@ -87,7 +87,7 @@
 										}
 									});
 									$item.find(".panel-collapse").attr("id", "fileCollapse" + response[i].id);
-									$item.find(".panel-collapse #fileDescription").text(response[i].description);
+									$item.find(".panel-collapse #fileDescription").html(response[i].description);
 									$item.find(".panel-collapse #fileSize").text(response[i].filesize);
 									$item.find(".panel-collapse #fileUploadTime").text(response[i].created_at.date);
 									$item.find(".panel-collapse #fileAuthor").attr("href", response[i].author_url).text(response[i].author);
@@ -133,10 +133,10 @@
 								var $request = $(request);
 								for(var i = 0; i < response.length; i++) {
 									$item = $request.clone();
-									$item.find(".panel-title a").attr("href", "#requestCollapse" + response[i].id).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request/" + response[i].id).text(response[i].title);
+									$item.find(".panel-title a").attr("href", "#requestCollapse" + response[i].id).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request/" + response[i].id).html(response[i].title);
 									$item.find(".panel-collapse").attr("id", "requestCollapse" + response[i].id);
 									$item.find(".panel-collapse #requestAuthor").attr("href", response[i].author_url).text(response[i].author);
-									$item.find(".panel-collapse #requestMessage").text(response[i].message);
+									$item.find(".panel-collapse #requestMessage").html(response[i].message);
 									$item.find(".collapse").on("shown.bs.collapse", function() {
 										History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
 									});
@@ -371,6 +371,10 @@
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span id="name"></span> <b class="caret"></b></a>
 							<ul class="dropdown-menu">
+@if ($isRoot)
+								<li><a href="{{ url('/adm/categories') }}">Manage categories</a></li>
+								<li><a href="{{ url('/adm/subjects') }}">Manage subjects</a></li>
+@endif
 								<li><a id="logoutButton" href="#">Logout</a></li>
 							</ul>
 						</li>

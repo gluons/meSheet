@@ -7,4 +7,5 @@
  */
 class Subject extends Eloquent {
 	protected $table = "subject";
+	public $timestamps = false;
 }
