@@ -15,6 +15,9 @@
 			Size: <span id="fileSize"></span>
 		</li>
 		<li class="list-group-item">
+			Type: <span id="fileType"></span>
+		</li>
+		<li class="list-group-item">
 			Upload time: <span id="fileUploadTime"></span>
 		</li>
 		<li class="list-group-item">
@@ -23,11 +26,24 @@
 		<li class="list-group-item">
 			<div style="padding-bottom: 1px;">Popularity:</div>
 			<div id="filePopularity">
-				<iframe src="" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width: 90px;" allowTransparency="true"></iframe>
-				<div class="g-plusone" data-href=""></div>
+				<div>
+					<iframe src="" style="border: none; overflow: hidden; height: 21px;" allowTransparency="true"></iframe>
+				</div>
+				<div>
+					<div class="g-plusone" data-href=""></div>
+				</div>
 			</div>
 		</li>
 		<li class="list-group-item">
+			Share:
+			<span id="fileShare">
+				<iframe src="" scrolling="no" frameborder="0" style="border: none; overflow: hidden; height: 21px; vertical-align: bottom;" allowTransparency="true"></iframe>
+			</span>
+		</li>
+		<li class="list-group-item">
+			<div style="margin-bottom: 5px;">
+				Filename: <i id="fileName"></i>
+			</div>
 			<a href="" class="btn btn-success btn-sm" id="fileDownload" role="button">
 				<span class="glyphicon glyphicon-download-alt"></span>
 				Download

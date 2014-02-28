@@ -11,6 +11,9 @@
 		<script src="{{ asset('js/bootstrap.min.js') }}"></script>
 		<script src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
 		<script src="//connect.facebook.net/th_TH/all.js"></script>
+		<script src="https://apis.google.com/js/platform.js">
+			{lang: 'th', parsetags: 'explicit'}
+		</script>
 		<script>
 @if (isset($topicId))
 			var topicId = {{ $topicId }};
@@ -67,7 +70,8 @@
 			};
 			// Get topic
 			var getTopic = function() {
-				$fileAccordion = $("#fileAccordion")
+				var $fileAccordion = $("#fileAccordion");
+				var $selectedAnchor = null;
 				$fileAccordion.fadeOut(function() {
 					$fileAccordion.children("div:gt(0)").remove();
 					$("#noFile").hide();
@@ -76,24 +80,33 @@
 							$.get("{{ asset('template/topic.html') }}", function(topic) {
 								var $topic = $(topic);
 								for(var i = 0; i < response.length; i++) {
-									$item = $topic.clone();
+									var $item = $topic.clone();
 									$item.find(".panel-title a").attr("href", "#fileCollapse" + response[i].id).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/topic/" + response[i].id);
 									$item.find(".panel-title a > span:first").html(response[i].title);
-									$.getJSON("https://graph.facebook.com/fql?q=" + "SELECT total_count FROM link_stat WHERE url= '" + $item.find(".panel-title a").attr("data-url") + "'", function(fbResponse) {
-										if(fbResponse.data.length != 0) {
-											$item.find(".panel-title span.badge").text(fbResponse.data[0].total_count);
-										} else {
-											$item.find(".panel-title span.badge").text("0");
-										}
+									$.ajax({
+										type: "get",
+										url: "https://graph.facebook.com/fql?q=" + "SELECT total_count FROM link_stat WHERE url= '" + $item.find(".panel-title a").attr("data-url") + "'",
+										dataType: "json",
+										success: function(fbResponse) {
+											if(fbResponse.data.length != 0) {
+												$item.find(".panel-title span.badge").text(fbResponse.data[0].total_count);
+											} else {
+												$item.find(".panel-title span.badge").text("0");
+											}
+										},
+										async: false
 									});
 									$item.find(".panel-collapse").attr("id", "fileCollapse" + response[i].id);
 									$item.find(".panel-collapse #fileDescription").html(response[i].description);
 									$item.find(".panel-collapse #fileSize").text(response[i].filesize);
+									$item.find(".panel-collapse #fileType").text(response[i].filetype);
 									$item.find(".panel-collapse #fileUploadTime").text(response[i].created_at.date);
 									$item.find(".panel-collapse #fileAuthor").attr("href", response[i].author_url).text(response[i].author);
-									$item.find(".panel-collapse #filePopularity > iframe").prop("src", "//www.facebook.com/plugins/like.php?href=" + $item.find(".panel-title a").attr("data-url") + "&amp;width&amp;layout=button_count&amp;action=like&amp;show_faces=false&amp;share=false&amp;height=21&amp;appId=716966921722728");
-									$item.find(".panel-collapse #filePopularity > div").attr("data-href", $item.find(".panel-title a").attr("data-url"));
+									$item.find(".panel-collapse #filePopularity iframe").prop("src", "//www.facebook.com/plugins/like.php?href=" + $item.find(".panel-title a").attr("data-url") + "&width&layout=button_count&action=like&show_faces=false&share=false&height=21&appId=716966921722728");
+									$item.find(".panel-collapse #filePopularity div.g-plusone").attr("data-href", $item.find(".panel-title a").attr("data-url"));
+									$item.find(".panel-collapse #fileShare iframe").prop("src", "//www.facebook.com/plugins/share_button.php?app_id=716966921722728&href=" + $item.find(".panel-title a").attr("data-url") + "&type=button");
 									$item.find(".panel-collapse #fileDownload").attr("href", "{{ url('/download/' . $year . '/' . $category . '/' . $subjectId) }}/" + response[i].id);
+									$item.find(".panel-collapse #fileName").text(response[i].filename);
 									$item.find(".collapse").on("shown.bs.collapse", function() {
 										History.pushState(null, document.title, $(this).parent(".panel").find(".panel-title a").attr("data-url"));
 									});
@@ -103,13 +116,36 @@
 @if (isset($topicId))
 									if(response[i].id == topicId) {
 										$item.find(".collapse").addClass("in");
+										$selectedAnchor = $item.find(".panel-title a");
 									}
 @endif
 									$fileAccordion.append($item);
 								}
+								gapi.plusone.go();
+								var $items = $fileAccordion.children(".panel");
+								$items.detach().sort(function($a, $b) {
+									$a = $($a);
+									$b = $($b);
+									var aVal = parseInt($a.find(".panel-title span.badge").text());
+									var bVal = parseInt($b.find(".panel-title span.badge").text());
+									if(aVal < bVal) {
+										return 1;
+									} else if(aVal > bVal) {
+										return -1;
+									} else {
+										return 0;
+									}
+								});
+								$fileAccordion.append($items);
 								$("#fileLoading").fadeOut(function () {
 									if(response.length > 0) {
-										$fileAccordion.fadeIn();
+										$fileAccordion.fadeIn(function() {
+											if($selectedAnchor != null) {
+												$('html, body').animate({
+													scrollTop: $selectedAnchor.offset().top - 70
+												},'slow');
+											}
+										});
 									} else {
 										$("#noFile").show(function() {
 											$fileAccordion.slideDown();
@@ -123,7 +159,8 @@
 			};
 			// Get request
 			var getRequest = function() {
-				$requestAccordion = $("#requestAccordion");
+				var $requestAccordion = $("#requestAccordion");
+				var $selectedAnchor = null;
 				$requestAccordion.fadeOut(function() {
 					$requestAccordion.children("div:gt(0)").remove();
 					$("#noRequest").hide();
@@ -132,7 +169,7 @@
 							$.get("{{ asset('template/request.html') }}", function(request) {
 								var $request = $(request);
 								for(var i = 0; i < response.length; i++) {
-									$item = $request.clone();
+									var $item = $request.clone();
 									$item.find(".panel-title a").attr("href", "#requestCollapse" + response[i].id).attr("data-url", "{{ url('/' . $year . '/' . $category . '/' . $subjectId) }}/request/" + response[i].id).html(response[i].title);
 									$item.find(".panel-collapse").attr("id", "requestCollapse" + response[i].id);
 									$item.find(".panel-collapse #requestAuthor").attr("href", response[i].author_url).text(response[i].author);
@@ -146,13 +183,20 @@
 @if (isset($requestId))
 									if(response[i].id == requestId) {
 										$item.find(".collapse").addClass("in");
+										$selectedAnchor = $item.find(".panel-title a");
 									}
 @endif
 									$requestAccordion.append($item);
 								}
 								$("#requestLoading").fadeOut(function () {
 									if(response.length > 0) {
-										$requestAccordion.fadeIn();
+										$requestAccordion.fadeIn(function() {
+											if($selectedAnchor != null) {
+												$('html, body').animate({
+													scrollTop: $selectedAnchor.offset().top - 70
+												},'slow');
+											}
+										});
 									} else {
 										$("#noRequest").show(function() {
 											$requestAccordion.slideDown();
@@ -448,6 +492,7 @@
 							<div class="form-group">
 								<label for="newFileFile">File</label>
 								<input type="file" name="newFileFile" id="newFileFile" required="yes">
+								<span class="help-block">Allow only <i>Word, Excel, PowerPoint, PDF, Text File and Image</i></span>
 							</div>
 							<button type="submit" id="newFileSubmitButton" class="btn btn-primary">
 								<i class="fa fa-upload"></i>
@@ -492,8 +537,8 @@
 								<input type="text" class="form-control" name="newRequestTitle" id="newRequestTitle" placeholder="Enter title" required="yes">
 							</div>
 							<div class="form-group">
-								<label for="newRequestDescription">Message</label>
-								<textarea class="form-control" rows="3" name="newRequestMessage" id="newRequestMessage" placeholder="Enter message" required="yes" style="resize: vertical;"></textarea>
+								<label for="newRequestDescription">Description</label>
+								<textarea class="form-control" rows="3" name="newRequestMessage" id="newRequestMessage" placeholder="Enter description" required="yes" style="resize: vertical;"></textarea>
 							</div>
 							<button type="submit" id="newRequestSubmitButton" class="btn btn-primary">
 								<span class="glyphicon glyphicon-file"></span>
@@ -508,14 +553,5 @@
 				</div>
 			</div>
 		</div>
-		<script>
-			window.___gcfg = {lang: 'th'};
-
-			(function() {
-			  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-			  po.src = 'https://apis.google.com/js/platform.js';
-			  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-			})();
-		</script>
     </body>
 </html>
